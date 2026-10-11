@@ -17,7 +17,7 @@
       <div class="target-card"><span>ACTIVE BACKEND</span><strong>Ethereum / EVM</strong><small>Solidity 0.8.24 · compiler validated</small><select id="target"><option value="solidity">Solidity / EVM</option><option value="rust">Rust backend (not implemented)</option></select></div>
     </section>
     <section class="workspace">
-      <article class="pane source"><div class="pane-head"><span><b>01</b> Python contract</span><span class="file">vault.py</span></div><textarea id="source" spellcheck="false"></textarea><div class="foot">Typed state · msg.sender/value · events · payable · ETH transfer</div></article>
+      <article class="pane source"><div class="pane-head"><span><b>01</b> Python contract</span><span class="source-actions"><label class="upload" for="python-file">Upload .py</label><input id="python-file" type="file" accept=".py,text/x-python,text/plain" hidden><span id="source-file" class="file">vault.py</span></span></div><textarea id="source" spellcheck="false"></textarea><div class="foot">Upload a Python file or write here · PyChain safely validates its smart-contract subset</div></article>
       <article class="pane output"><div class="pane-head"><span><b>02</b> Generated Solidity</span><span><button id="copy">Copy</button> <button id="download">.sol</button> <button id="download-artifact">Artifact JSON</button></span></div><pre id="output">// Compile a contract to generate Solidity.</pre><div class="foot">Artifact JSON includes ABI/bytecode after successful solc validation</div></article>
     </section>
     <section class="action-row"><button id="compile" class="compile">Compile contract <span>→</span></button><span id="compile-status">Ready · local solc validation runs when configured</span></section>

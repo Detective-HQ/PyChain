@@ -42,7 +42,10 @@ const ir = document.querySelector("#ir");
 const tests = document.querySelector("#tests");
 const button = document.querySelector("#compile");
 const status = document.querySelector("#compile-status");
+const fileInput = document.querySelector("#python-file");
+const sourceFile = document.querySelector("#source-file");
 let lastResult = null;
+let sourceName = "vault.py";
 source.value = example;
 
 function renderDiagnostics(items) {
@@ -73,7 +76,11 @@ async function compile() {
     const response = await fetch("/api/compile", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({source: source.value, target: document.querySelector("#target").value})
+      body: JSON.stringify({
+        source: source.value,
+        target: document.querySelector("#target").value,
+        source_name: sourceName
+      })
     });
     const data = await response.json();
     if (!response.ok) throw data.detail || {};
@@ -115,7 +122,33 @@ async function compile() {
 button.addEventListener("click", compile);
 document.querySelector("#load-example").addEventListener("click", () => {
   source.value = example;
+  sourceName = "vault.py";
+  sourceFile.textContent = sourceName;
+  fileInput.value = "";
   status.textContent = "Vault example loaded";
+});
+fileInput.addEventListener("change", async () => {
+  const [file] = fileInput.files;
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith(".py")) {
+    fileInput.value = "";
+    status.textContent = "Choose a Python source file ending in .py";
+    return;
+  }
+  if (file.size > 100_000) {
+    fileInput.value = "";
+    status.textContent = "This file is too large; the limit is 100 KB";
+    return;
+  }
+  try {
+    source.value = await file.text();
+    sourceName = file.name;
+    sourceFile.textContent = sourceName;
+    status.textContent = `${sourceName} loaded — compile to generate Solidity`;
+  } catch {
+    fileInput.value = "";
+    status.textContent = "The selected Python file could not be read";
+  }
 });
 document.querySelector("#copy").addEventListener("click", async () => {
   await navigator.clipboard.writeText(output.textContent);

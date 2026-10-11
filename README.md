@@ -4,6 +4,12 @@ PyChain is a Python-first **EVM contract compiler**. Developers write contract l
 
 It does not execute arbitrary Python or translate ordinary Web2/Python applications wholesale. The supported syntax is a small smart-contract language with Python ergonomics and explicit EVM semantics.
 
+## Upload a Python file
+
+Use **Upload .py** above the editor to load a local Python file (up to 100 KB). The browser reads the file into the editor and sends its source to the same compiler endpoint used by the editor; files are not persisted by PyChain. Click **Compile contract** to generate Solidity and, when local `solc` is installed, an ABI and bytecode artifact.
+
+Any `.py` file can be selected, but only code in PyChain's supported smart-contract subset can be converted. Regular Python features such as imports, filesystem access, HTTP clients, classes without `@contract`, or dynamic execution have no equivalent safe EVM translation and return source diagnostics.
+
 ## Run locally
 
 Requirements: Python 3.11+ and Node.js/npm.

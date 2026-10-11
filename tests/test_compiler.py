@@ -165,6 +165,16 @@ class Bad:
         self.assertEqual(raised.exception.status_code, 422)
         self.assertEqual(raised.exception.detail["diagnostics"][0]["code"], "PY052")
 
+    def test_http_compile_preserves_uploaded_python_filename(self):
+        body = compile_contract(CompileRequest(source=VAULT_SOURCE, source_name="uploaded_vault.py"))
+        self.assertEqual(body["source_name"], "uploaded_vault.py")
+
+    def test_http_compile_rejects_non_python_upload_name(self):
+        with self.assertRaises(HTTPException) as raised:
+            compile_contract(CompileRequest(source=VAULT_SOURCE, source_name="uploaded_vault.txt"))
+        self.assertEqual(raised.exception.status_code, 422)
+        self.assertEqual(raised.exception.detail["diagnostics"][0]["code"], "PY101")
+
 
 if __name__ == "__main__":
     unittest.main()
