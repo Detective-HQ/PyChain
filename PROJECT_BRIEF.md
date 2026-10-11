@@ -12,12 +12,14 @@ The first supported chain family is EVM-compatible networks, through Solidity. R
 
 Current end-to-end workflow:
 
-1. Write a Python-like contract in the web editor.
-2. Parse and validate the source without executing user Python.
+1. Write or upload a `.py` source file in the web editor (100 KB maximum).
+2. Check compatibility and parse/validate the source without executing user Python.
 3. Lower supported source constructs into typed PyChain IR.
 4. Generate Solidity and source-line annotations.
 5. Compile with pinned Solidity 0.8.24 when project dependencies are installed.
 6. Return compiler errors or compiled ABI/bytecode, static heuristic warnings, and a Hardhat deployment-test starter.
+7. Export source, Solidity, IR, test starter, ABI/bytecode, and compiler metadata as an artifact bundle.
+8. Optionally deploy from the browser wallet to a local EVM network or Sepolia after gas review and explicit wallet approval.
 
 ## Current supported contract features
 
@@ -27,6 +29,9 @@ Current end-to-end workflow:
 - Events, `require`, `assert`, typed locals, conditions, arithmetic, and mapping operations.
 - Checked ETH transfers through `send_eth`; the compiler adds a reentrancy lock around state-changing external methods for contracts that use this helper.
 - Solidity compiler validation and ABI/bytecode generation.
+- Browser-side Python file upload/drop and a compatibility summary before compilation.
+- Artifact export with source, IR, generated test starter, and compiler version/settings.
+- Wallet-connected deployment to Sepolia or a local EVM chain, with constructor inputs, a best-effort gas estimate, post-deployment code check, and downloadable deployment record.
 
 The exact grammar and limits live in `backend/compiler.py` and are described in `README.md`. Unsupported code fails closed with source diagnostics.
 
@@ -49,7 +54,7 @@ Typed chain-neutral PyChain IR
 
 ## Important safety boundary
 
-Generated code is not automatically secure just because it compiles. PyChain currently has heuristic checks, not a complete analyzer; warnings may be false positives, and vulnerabilities may be missed. Generated tests currently provide a deployment smoke-test starter rather than semantic/property-based verification. Gas estimation, wallet integration, and deployment are not implemented.
+Generated code is not automatically secure just because it compiles. PyChain currently has heuristic checks, not a complete analyzer; warnings may be false positives, and vulnerabilities may be missed. Generated tests currently provide a deployment smoke-test starter rather than semantic/property-based verification. Function-level gas analysis and mainnet deployment are not implemented. Deployment estimates are best-effort; wallet review and explicit signing are required.
 
 ## Roadmap
 
@@ -61,7 +66,7 @@ Generated code is not automatically secure just because it compiles. PyChain cur
 | 3 | Security and resource feedback | Slither integration, property tests, limits/cost analysis, false-positive tracking |
 | 4 | Reproducible projects | Versioned project files, compiler metadata, source maps, lockfiles, deterministic artifacts |
 | 5 | Additional backend | A Rust-based target with independent semantics and conformance tests |
-| 6 | Deployment workflow | User-approved network selection, wallet signing, deployment records, and artifact verification |
+| 6 | Broader deployment workflow | More chain/RPC verification, explorer/source verification, and deployment recovery UX beyond the initial local/Sepolia flow |
 
 ## Success criteria
 
