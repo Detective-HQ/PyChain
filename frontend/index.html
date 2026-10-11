@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PyChain — Contract Compiler</title>
+  <link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+  <header>
+    <a class="brand" href="/"><span>⟠</span> PyChain</a>
+    <div class="header-status"><i></i> Compiler API online <button id="load-example">Load example</button></div>
+  </header>
+  <main>
+    <section class="hero">
+      <div><p class="eyebrow">PYTHON-STYLE WEB3 LOGIC → SOLIDITY</p><h1>Write contract logic.<br><em>Target the chain.</em></h1><p class="lede">Model state, callers, payable actions, events, and ETH transfers in a typed Python-like contract language. PyChain validates the supported subset and can compile its output with Solidity.</p></div>
+      <div class="target-card"><span>ACTIVE BACKEND</span><strong>Ethereum / EVM</strong><small>Solidity 0.8.24 · compiler validated</small><select id="target"><option value="solidity">Solidity / EVM</option><option value="rust">Rust backend (not implemented)</option></select></div>
+    </section>
+    <section class="workspace">
+      <article class="pane source"><div class="pane-head"><span><b>01</b> Python contract</span><span class="file">vault.py</span></div><textarea id="source" spellcheck="false"></textarea><div class="foot">Typed state · msg.sender/value · events · payable · ETH transfer</div></article>
+      <article class="pane output"><div class="pane-head"><span><b>02</b> Generated Solidity</span><span><button id="copy">Copy</button> <button id="download">.sol</button> <button id="download-artifact">Artifact JSON</button></span></div><pre id="output">// Compile a contract to generate Solidity.</pre><div class="foot">Artifact JSON includes ABI/bytecode after successful solc validation</div></article>
+    </section>
+    <section class="action-row"><button id="compile" class="compile">Compile contract <span>→</span></button><span id="compile-status">Ready · local solc validation runs when configured</span></section>
+    <section class="insights">
+      <article><div class="insight-head"><span>◈</span> Compiler &amp; security report</div><div id="diagnostics" class="empty">No analysis yet. Compilation reports supported-language errors and heuristic security warnings.</div></article>
+      <article><div class="insight-head"><span>⌁</span> Intermediate representation</div><pre id="ir" class="empty">The chain-neutral IR will appear here.</pre></article>
+      <article><div class="insight-head"><span>✓</span> Deployment smoke-test starter</div><pre id="tests" class="empty">A Hardhat deployment smoke-test starter appears after compilation.</pre></article>
+    </section>
+  </main>
+  <footer>PyChain 0.1.0 <span>•</span> Compilation is not an audit <span>•</span> Never deploy unreviewed code</footer>
+  <script src="/assets/app.js"></script>
+</body>
+</html>
