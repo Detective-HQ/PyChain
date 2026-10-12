@@ -1,7 +1,7 @@
 import unittest
 
 from backend.compiler import CompileFailure, compile_source
-from backend.main import CompileRequest, compile_contract
+from backend.main import CompileRequest, analyze_source, compile_contract, ethers_bundle
 from backend.solidity import validate_solidity
 from fastapi import HTTPException
 
@@ -174,6 +174,32 @@ class Bad:
             compile_contract(CompileRequest(source=VAULT_SOURCE, source_name="uploaded_vault.txt"))
         self.assertEqual(raised.exception.status_code, 422)
         self.assertEqual(raised.exception.detail["diagnostics"][0]["code"], "PY101")
+
+    def test_http_analyze_reports_compatible_contract_summary(self):
+        result = analyze_source(CompileRequest(source=VAULT_SOURCE, source_name="uploaded_vault.py"))
+        self.assertTrue(result["compatible"])
+        self.assertEqual(result["source_name"], "uploaded_vault.py")
+        self.assertEqual(result["contract"]["name"], "Vault")
+        self.assertEqual(result["contract"]["state_fields"], 2)
+        self.assertEqual(result["contract"]["functions"], 3)
+        self.assertEqual(result["contract"]["events"], 2)
+
+    def test_http_analyze_returns_diagnostics_for_unsupported_python(self):
+        request = CompileRequest(source="import os\nprint('not on chain')\n", source_name="ordinary.py")
+        with self.assertRaises(HTTPException) as raised:
+            analyze_source(request)
+        self.assertEqual(raised.exception.status_code, 422)
+        self.assertTrue(raised.exception.detail["diagnostics"])
+
+    def test_solidity_artifact_includes_compiler_settings(self):
+        result = validate_solidity(compile_source(VAULT_SOURCE)["solidity"])
+        self.assertEqual(result["status"], "passed", result)
+        self.assertIn("outputSelection", result["settings"])
+
+    def test_wallet_deployment_library_is_served_from_pinned_local_dependency(self):
+        response = ethers_bundle()
+        self.assertTrue(str(response.path).endswith("ethers.umd.min.js"))
+        self.assertEqual(response.media_type, "text/javascript")
 
 
 if __name__ == "__main__":

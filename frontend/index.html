@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PyChain — Contract Compiler</title>
   <link rel="stylesheet" href="/assets/style.css" />
+  <link rel="stylesheet" href="/assets/enhancements.css" />
 </head>
 <body>
   <header>
@@ -17,10 +18,38 @@
       <div class="target-card"><span>ACTIVE BACKEND</span><strong>Ethereum / EVM</strong><small>Solidity 0.8.24 · compiler validated</small><select id="target"><option value="solidity">Solidity / EVM</option><option value="rust">Rust backend (not implemented)</option></select></div>
     </section>
     <section class="workspace">
-      <article class="pane source"><div class="pane-head"><span><b>01</b> Python contract</span><span class="source-actions"><label class="upload" for="python-file">Upload .py</label><input id="python-file" type="file" accept=".py,text/x-python,text/plain" hidden><span id="source-file" class="file">vault.py</span></span></div><textarea id="source" spellcheck="false"></textarea><div class="foot">Upload a Python file or write here · PyChain safely validates its smart-contract subset</div></article>
+      <article class="pane source" id="source-pane"><div class="pane-head"><span><b>01</b> Python contract</span><span class="source-actions"><label class="upload" for="python-file">Upload .py</label><input id="python-file" type="file" accept=".py,text/x-python,text/plain" hidden><span id="source-file" class="file">vault.py</span></span></div><textarea id="source" spellcheck="false" aria-label="Python contract source"></textarea><div class="foot">Drop or upload a .py file · maximum 100 KB · only supported contract syntax converts</div></article>
       <article class="pane output"><div class="pane-head"><span><b>02</b> Generated Solidity</span><span><button id="copy">Copy</button> <button id="download">.sol</button> <button id="download-artifact">Artifact JSON</button></span></div><pre id="output">// Compile a contract to generate Solidity.</pre><div class="foot">Artifact JSON includes ABI/bytecode after successful solc validation</div></article>
     </section>
-    <section class="action-row"><button id="compile" class="compile">Compile contract <span>→</span></button><span id="compile-status">Ready · local solc validation runs when configured</span></section>
+    <section class="action-row"><button id="analyze" class="analyze">Check compatibility</button><button id="compile" class="compile">Compile contract <span>→</span></button><span id="compile-status" role="status">Ready · local solc validation runs when configured</span></section>
+    <section class="deployment" id="deployment">
+      <div class="deployment-heading"><div><p class="eyebrow">OPTIONAL · USER-SIGNED TRANSACTION</p><h2>Deployment assistant</h2></div><span class="deployment-badge">Testnet / local only</span></div>
+      <p class="deployment-copy">PyChain never receives your private key or seed phrase. Your wallet signs and submits the deployment transaction after you review it.</p>
+      <div class="deployment-controls">
+        <label for="deploy-network">Target network
+          <select id="deploy-network">
+            <option value="sepolia">Sepolia testnet · chain ID 11155111</option>
+            <option value="local">Local EVM node · chain ID 31337</option>
+          </select>
+        </label>
+        <button id="wallet-connect" class="analyze">Connect wallet</button>
+        <button id="switch-network" class="analyze" disabled>Switch wallet network</button>
+        <span id="wallet-status" role="status">Compile with local solc to enable deployment.</span>
+      </div>
+      <div id="constructor-fields" class="constructor-fields"></div>
+      <div class="deployment-actions"><button id="review-deployment" class="analyze" disabled>Review deployment</button></div>
+      <div id="deployment-review" class="deployment-review" hidden>
+        <p id="deployment-review-text"></p>
+        <p class="deployment-warning">Deployment is irreversible on the selected network. Check the contract, account, network, constructor arguments, and estimated fee before continuing.</p>
+        <button id="confirm-deployment" class="compile" disabled>Sign &amp; deploy in wallet</button>
+      </div>
+      <div id="deployment-result" class="deployment-result" hidden>
+        <h3>Deployment result</h3>
+        <pre id="deployment-result-text"></pre>
+        <button id="download-deployment" class="analyze">Download deployment record</button>
+      </div>
+      <p class="deployment-note">Local mode requires a local EVM node at localhost:8545 (for example, Anvil or Hardhat) with chain ID 31337. No mainnet deployment is enabled.</p>
+    </section>
     <section class="insights">
       <article><div class="insight-head"><span>◈</span> Compiler &amp; security report</div><div id="diagnostics" class="empty">No analysis yet. Compilation reports supported-language errors and heuristic security warnings.</div></article>
       <article><div class="insight-head"><span>⌁</span> Intermediate representation</div><pre id="ir" class="empty">The chain-neutral IR will appear here.</pre></article>
@@ -28,6 +57,7 @@
     </section>
   </main>
   <footer>PyChain 0.1.0 <span>•</span> Compilation is not an audit <span>•</span> Never deploy unreviewed code</footer>
+  <script src="/vendor/ethers.js"></script>
   <script src="/assets/app.js"></script>
 </body>
 </html>

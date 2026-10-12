@@ -1,8 +1,19 @@
 {
   "name": "pychain-compiler-toolchain",
   "private": true,
-  "description": "Pinned Solidity compiler used to validate PyChain output",
+  "description": "PyChain Solidity compiler and browser wallet deployment toolchain",
+  "scripts": {
+    "test:deployment": "node tests/test_deployment.js"
+  },
   "devDependencies": {
     "solc": "0.8.24"
+  },
+  "dependencies": {
+    "ethers": "6.17.0"
+  },
+  "overrides": {
+    "solc": {
+      "tmp": "0.2.7"
+    }
   }
 }
