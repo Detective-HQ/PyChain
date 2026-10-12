@@ -11,6 +11,9 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SOLCJS = ROOT / "node_modules" / "solc" / "solc.js"
+COMPILER_SETTINGS = {
+    "outputSelection": {"*": {"*": ["abi", "evm.bytecode.object"]}},
+}
 
 
 def _version(command: list[str]) -> str | None:
@@ -45,9 +48,7 @@ def validate_solidity(source: str) -> dict[str, Any]:
     standard_input = {
         "language": "Solidity",
         "sources": {"PyChain.sol": {"content": source}},
-        "settings": {
-            "outputSelection": {"*": {"*": ["abi", "evm.bytecode.object"]}},
-        },
+        "settings": COMPILER_SETTINGS,
     }
     try:
         result = subprocess.run(
@@ -114,4 +115,5 @@ def validate_solidity(source: str) -> dict[str, Any]:
         "errors": errors,
         "warnings": warnings,
         "artifacts": artifacts,
+        "settings": COMPILER_SETTINGS,
     }
