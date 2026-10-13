@@ -17,6 +17,31 @@
       <div><p class="eyebrow">PYTHON-STYLE WEB3 LOGIC → SOLIDITY</p><h1>Write contract logic.<br><em>Target the chain.</em></h1><p class="lede">Model state, callers, payable actions, events, and ETH transfers in a typed Python-like contract language. PyChain validates the supported subset and can compile its output with Solidity.</p></div>
       <div class="target-card"><span>ACTIVE BACKEND</span><strong>Ethereum / EVM</strong><small>Solidity 0.8.24 · compiler validated</small><select id="target"><option value="solidity">Solidity / EVM</option><option value="rust">Rust backend (not implemented)</option></select></div>
     </section>
+    <section class="template-picker" aria-labelledby="templates-heading">
+      <div class="template-picker-controls">
+        <div>
+          <p class="eyebrow">LEARN BY EXAMPLE</p>
+          <h2 id="templates-heading">Beginner templates</h2>
+          <p class="template-intro">Choose a small contract to explore. Loading a template replaces the editor contents.</p>
+        </div>
+        <div class="template-select-row">
+          <label for="template-select">Starter contract
+            <select id="template-select">
+              <option value="">Choose a template…</option>
+            </select>
+          </label>
+          <button id="load-template" class="analyze" disabled>Load into editor</button>
+        </div>
+      </div>
+      <article id="template-details" class="template-details" aria-live="polite">
+        <h3 id="template-title">Pick a template to see what it teaches</h3>
+        <p id="template-summary">Each example includes a behavior walkthrough, a suggested experiment, and clear limitations.</p>
+        <h4>How it behaves</h4>
+        <ul id="template-behavior"><li>Select a starter contract above.</li></ul>
+        <p id="template-try" class="template-try"></p>
+        <p id="template-caution" class="template-caution">Educational examples only—review and test contracts locally before considering any public testnet deployment.</p>
+      </article>
+    </section>
     <section class="workspace">
       <article class="pane source" id="source-pane"><div class="pane-head"><span><b>01</b> Python contract</span><span class="source-actions"><label class="upload" for="python-file">Upload .py</label><input id="python-file" type="file" accept=".py,text/x-python,text/plain" hidden><span id="source-file" class="file">vault.py</span></span></div><textarea id="source" spellcheck="false" aria-label="Python contract source"></textarea><div class="foot">Drop or upload a .py file · maximum 100 KB · only supported contract syntax converts</div></article>
       <article class="pane output"><div class="pane-head"><span><b>02</b> Generated Solidity</span><span><button id="copy">Copy</button> <button id="download">.sol</button> <button id="download-artifact">Artifact JSON</button></span></div><pre id="output">// Compile a contract to generate Solidity.</pre><div class="foot">Artifact JSON includes ABI/bytecode after successful solc validation</div></article>

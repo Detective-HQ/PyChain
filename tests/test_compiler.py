@@ -1,3 +1,5 @@
+import json
+from pathlib import Path
 import unittest
 
 from backend.compiler import CompileFailure, compile_source
@@ -42,6 +44,8 @@ class Vault:
     def balance_of(self, account: address) -> uint:
         return self.balances[account]
 '''
+
+TEMPLATE_CATALOG = Path(__file__).resolve().parents[1] / "frontend" / "templates.json"
 
 
 class CompilerTests(unittest.TestCase):
@@ -200,6 +204,19 @@ class Bad:
         response = ethers_bundle()
         self.assertTrue(str(response.path).endswith("ethers.umd.min.js"))
         self.assertEqual(response.media_type, "text/javascript")
+
+    def test_beginner_templates_compile_to_valid_solidity(self):
+        templates = json.loads(TEMPLATE_CATALOG.read_text(encoding="utf-8"))
+        self.assertEqual({item["id"] for item in templates}, {"voting", "escrow", "points"})
+        for template in templates:
+            with self.subTest(template=template["id"]):
+                self.assertTrue(template["summary"])
+                self.assertTrue(template["behavior"])
+                self.assertTrue(template["try"])
+                self.assertTrue(template["caution"])
+                compiled = compile_source(template["source"])
+                validation = validate_solidity(compiled["solidity"])
+                self.assertEqual(validation["status"], "passed", validation)
 
 
 if __name__ == "__main__":

@@ -46,6 +46,13 @@ const status = document.querySelector("#compile-status");
 const fileInput = document.querySelector("#python-file");
 const sourceFile = document.querySelector("#source-file");
 const sourcePane = document.querySelector("#source-pane");
+const templateSelect = document.querySelector("#template-select");
+const loadTemplateButton = document.querySelector("#load-template");
+const templateTitle = document.querySelector("#template-title");
+const templateSummary = document.querySelector("#template-summary");
+const templateBehavior = document.querySelector("#template-behavior");
+const templateTry = document.querySelector("#template-try");
+const templateCaution = document.querySelector("#template-caution");
 const walletConnectButton = document.querySelector("#wallet-connect");
 const switchNetworkButton = document.querySelector("#switch-network");
 const walletStatus = document.querySelector("#wallet-status");
@@ -64,7 +71,9 @@ let pendingDeployment = null;
 let lastDeploymentRecord = null;
 let deploymentBusy = false;
 let sourceName = "vault.py";
+let editorBaseline = example;
 let sourceRevision = 0;
+let beginnerTemplates = [];
 source.value = example;
 
 function renderDiagnostics(items) {
@@ -231,8 +240,11 @@ async function loadPythonFile(file) {
       return false;
     }
     source.value = contents;
+    editorBaseline = contents;
     sourceName = file.name;
     sourceFile.textContent = sourceName;
+    templateSelect.value = "";
+    renderTemplateDetails(null);
     fileInput.value = "";
     invalidateGeneratedResult();
     status.textContent = `${sourceName} loaded — check compatibility or compile`;
@@ -244,13 +256,87 @@ async function loadPythonFile(file) {
   }
 }
 
+function renderTemplateDetails(template) {
+  if (!template) {
+    templateTitle.textContent = "Pick a template to see what it teaches";
+    templateSummary.textContent = "Each example includes a behavior walkthrough, a suggested experiment, and clear limitations.";
+    templateBehavior.replaceChildren();
+    const prompt = document.createElement("li");
+    prompt.textContent = "Select a starter contract above.";
+    templateBehavior.append(prompt);
+    templateTry.textContent = "";
+    templateCaution.textContent = "Educational examples only—review and test contracts locally before considering any public testnet deployment.";
+    loadTemplateButton.disabled = true;
+    return;
+  }
+
+  templateTitle.textContent = template.name;
+  templateSummary.textContent = template.summary;
+  templateBehavior.replaceChildren();
+  for (const behavior of template.behavior) {
+    const item = document.createElement("li");
+    item.textContent = behavior;
+    templateBehavior.append(item);
+  }
+  templateTry.textContent = `Try it: ${template.try}`;
+  templateCaution.textContent = template.caution;
+  loadTemplateButton.disabled = deploymentBusy;
+}
+
+async function loadBeginnerTemplates() {
+  try {
+    const response = await fetch("/assets/templates.json");
+    if (!response.ok) throw new Error("Template catalog request failed.");
+    const catalog = await response.json();
+    if (!Array.isArray(catalog) || !catalog.length) throw new Error("Template catalog is empty.");
+    beginnerTemplates = catalog;
+    for (const template of beginnerTemplates) {
+      const option = document.createElement("option");
+      option.value = template.id;
+      option.textContent = template.name;
+      templateSelect.append(option);
+    }
+  } catch {
+    templateTitle.textContent = "Starter templates are unavailable";
+    templateSummary.textContent = "The rest of the editor is still available. Check that the PyChain frontend files are installed correctly.";
+    templateBehavior.replaceChildren();
+    templateTry.textContent = "";
+    templateCaution.textContent = "You can continue with the built-in Vault example or upload your own supported .py contract.";
+  }
+}
+
+templateSelect.addEventListener("change", () => {
+  const template = beginnerTemplates.find(item => item.id === templateSelect.value);
+  renderTemplateDetails(template);
+});
+
+loadTemplateButton.addEventListener("click", () => {
+  const template = beginnerTemplates.find(item => item.id === templateSelect.value);
+  if (!template || deploymentBusy) return;
+  if (source.value !== editorBaseline
+    && source.value.trim()
+    && !window.confirm("Replace your current editor contents with this starter template?")) {
+    return;
+  }
+  source.value = template.source;
+  editorBaseline = template.source;
+  sourceName = template.fileName;
+  sourceFile.textContent = sourceName;
+  fileInput.value = "";
+  invalidateGeneratedResult();
+  status.textContent = `${template.name} loaded — review the explanation, then check compatibility or compile`;
+});
+
 button.addEventListener("click", compile);
 analyzeButton.addEventListener("click", analyzeCompatibility);
 source.addEventListener("input", invalidateGeneratedResult);
 document.querySelector("#load-example").addEventListener("click", () => {
   source.value = example;
+  editorBaseline = example;
   sourceName = "vault.py";
   sourceFile.textContent = sourceName;
+  templateSelect.value = "";
+  renderTemplateDetails(null);
   fileInput.value = "";
   invalidateGeneratedResult();
   status.textContent = "Vault example loaded";
@@ -732,6 +818,8 @@ function setDeploymentBusy(isBusy) {
   analyzeButton.disabled = isBusy;
   document.querySelector("#load-example").disabled = isBusy;
   document.querySelector("#target").disabled = isBusy;
+  templateSelect.disabled = isBusy;
+  loadTemplateButton.disabled = isBusy || !templateSelect.value;
   deploymentNetwork.disabled = isBusy;
   walletConnectButton.disabled = isBusy;
   updateDeploymentControls();
@@ -811,3 +899,5 @@ if (window.ethereum?.on) {
 } else {
   updateDeploymentControls();
 }
+
+loadBeginnerTemplates();

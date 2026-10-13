@@ -30,6 +30,7 @@ Current end-to-end workflow:
 - Checked ETH transfers through `send_eth`; the compiler adds a reentrancy lock around state-changing external methods for contracts that use this helper.
 - Solidity compiler validation and ABI/bytecode generation.
 - Browser-side Python file upload/drop and a compatibility summary before compilation.
+- Three beginner templates (open voting demo, simple ETH escrow, owner-managed points) with behavior explanations, experiments, and explicit limitations.
 - Artifact export with source, IR, generated test starter, and compiler version/settings.
 - Wallet-connected deployment to Sepolia or a local EVM chain, with constructor inputs, a best-effort gas estimate, post-deployment code check, and downloadable deployment record.
 

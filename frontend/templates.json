@@ -1,0 +1,44 @@
+[
+  {
+    "id": "voting",
+    "name": "Simple voting",
+    "fileName": "simple_voting.py",
+    "summary": "Let each wallet vote once for an option, then read the vote totals.",
+    "behavior": [
+      "A wallet can submit one vote; its address is recorded in has_voted.",
+      "Option IDs are plain unsigned integers, and vote totals are stored in a mapping.",
+      "Anyone can read a total with votes_for(option) or check an address with did_vote(address)."
+    ],
+    "try": "Compile it, then test two accounts voting for the same option and one account trying to vote twice.",
+    "caution": "This is an open ballot demo, not a real election system: it has no voter eligibility, identity checks, voting period, or protection against people using multiple wallets.",
+    "source": "from pychain import contract, external, view, require, mapping, msg\n\n@contract\nclass SimpleVoting:\n    has_voted: mapping[address, bool] = {}\n    vote_counts: mapping[uint, uint] = {}\n\n    @external\n    def vote(self, option: uint):\n        require(not self.has_voted[msg.sender], \"already voted\")\n        self.has_voted[msg.sender] = True\n        self.vote_counts[option] += 1\n\n    @view\n    def votes_for(self, option: uint) -> uint:\n        return self.vote_counts[option]\n\n    @view\n    def did_vote(self, voter: address) -> bool:\n        return self.has_voted[voter]\n"
+  },
+  {
+    "id": "escrow",
+    "name": "Simple ETH escrow",
+    "fileName": "simple_escrow.py",
+    "summary": "A buyer funds the contract, then chooses to release the ETH to a named seller.",
+    "behavior": [
+      "The deployer is saved as the buyer; the seller is supplied as a constructor argument.",
+      "Only the buyer can fund once, and the payment amount is the ETH attached to fund().",
+      "Only the buyer can release the funds, and the contract marks the escrow complete before sending ETH."
+    ],
+    "try": "On a local network, deploy with a test seller address, fund from the buyer account, release, then try calling release from another account.",
+    "caution": "This teaching example has no timeout, cancellation, dispute process, or buyer refund. Do not use it to hold real funds.",
+    "source": "from pychain import contract, external, payable, view, require, send_eth, msg, balance\n\n@contract\nclass SimpleEscrow:\n    buyer: address\n    seller: address\n    amount: uint = 0\n    funded: bool = False\n    released: bool = False\n\n    def __init__(self, seller_address: address):\n        require(seller_address != address(0), \"seller cannot be zero address\")\n        self.buyer = msg.sender\n        self.seller = seller_address\n\n    @payable\n    @external\n    def fund(self):\n        require(msg.sender == self.buyer, \"only buyer can fund\")\n        require(not self.funded, \"already funded\")\n        require(msg.value > 0, \"fund with positive ETH\")\n        self.amount = msg.value\n        self.funded = True\n\n    @external\n    def release(self):\n        require(msg.sender == self.buyer, \"only buyer can release\")\n        require(self.funded, \"escrow is not funded\")\n        require(not self.released, \"already released\")\n        self.released = True\n        send_eth(self.seller, self.amount)\n\n    @view\n    def escrow_balance(self) -> uint:\n        return balance()\n"
+  },
+  {
+    "id": "points",
+    "name": "Owner-managed points registry",
+    "fileName": "points_registry.py",
+    "summary": "Track simple point balances and let only the deploying owner award points.",
+    "behavior": [
+      "The deployer becomes the owner during construction.",
+      "Only the owner can award a positive number of points to a non-zero address.",
+      "Anyone can query an address's balance; each award also emits PointsAwarded."
+    ],
+    "try": "Compile and deploy locally, award points to a second test account, then query points_of(account). Try awarding from the non-owner account and inspect the revert.",
+    "caution": "Points are not tokens and cannot be transferred or redeemed. The contract has no owner handover or recovery mechanism.",
+    "source": "from pychain import contract, event, external, view, require, emit, mapping, msg\n\n@contract\nclass PointsRegistry:\n    owner: address\n    points: mapping[address, uint] = {}\n    total_awarded: uint = 0\n\n    @event\n    def PointsAwarded(account: address, amount: uint):\n        ...\n\n    def __init__(self):\n        self.owner = msg.sender\n\n    @external\n    def award(self, account: address, amount: uint):\n        require(msg.sender == self.owner, \"only owner can award points\")\n        require(account != address(0), \"account cannot be zero address\")\n        require(amount > 0, \"award must be positive\")\n        self.points[account] += amount\n        self.total_awarded += amount\n        emit(PointsAwarded, account, amount)\n\n    @view\n    def points_of(self, account: address) -> uint:\n        return self.points[account]\n"
+  }
+]

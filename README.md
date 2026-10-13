@@ -12,6 +12,16 @@ Any `.py` file can be selected, but only code in PyChain's supported smart-contr
 
 The artifact JSON bundle includes the uploaded source name and contents, compiler version/settings, generated Solidity, PyChain IR, generated Hardhat test starter, ABI, and bytecode. It is an export bundle, not a deployed contract or a security audit.
 
+## Beginner templates
+
+Choose a starter in **Beginner templates** to see what it does, a suggested experiment, and its limitations before loading it into the editor. Replacing edited source asks for confirmation. The included examples are:
+
+- **Simple voting** — one vote per wallet address, with readable totals. It has no voter identity, eligibility, or election-period controls.
+- **Simple ETH escrow** — a buyer funds an escrow and can release the ETH to a chosen seller. It has no refund, timeout, or dispute path.
+- **Owner-managed points registry** — the deployer can award points and anyone can read balances. Points are not transferable tokens.
+
+These examples teach contract state and caller checks; they are not audited or suitable for real funds or high-stakes voting. Compile and inspect the generated Solidity, then experiment on a local EVM network first.
+
 ## Deploy on a local network or Sepolia
 
 After compiling successfully with local `solc`, use **Deployment assistant** to connect an injected EVM wallet, enter constructor arguments (including initial ETH for payable constructors), review the active account/network and estimated gas fee, then choose **Sign & deploy in wallet**. The network switch control asks the wallet to switch; the wallet may reject it or require a network to be configured first. The wallet presents the transaction for approval; PyChain does not receive private keys or seed phrases. After confirmation, PyChain checks that bytecode exists at the reported address and offers a downloadable deployment record.
